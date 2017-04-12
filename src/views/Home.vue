@@ -75,7 +75,7 @@
 	export default {
 		data() {
 			return {
-				sysName:'VUEADMIN',
+				sysName:'CRM MANAGER',
 				collapsed:false,
 				sysUserName: '',
 				sysUserAvatar: '',

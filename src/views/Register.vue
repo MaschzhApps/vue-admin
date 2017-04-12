@@ -1,25 +1,22 @@
 <template>
-  <el-form :model="ruleForm2" :rules="rules2" ref="ruleForm2" label-position="left" class="demo-ruleForm login-container">
-    <h2 class="title">客户关系管理系统</h2>
-    <el-form-item prop="account" label="用户名" label-width="80px">
-      <el-input type="text" v-model="ruleForm2.account" auto-complete="off" placeholder="用户名"></el-input>
+  <el-form :model="ruleForm2" :rules="rules2" ref="ruleForm2" label-position="left" label-width="0px" class="demo-ruleForm login-container">
+    <h3 class="title">用户注册</h3>
+    <el-form-item prop="account">
+      <el-input type="text" v-model="ruleForm2.account" auto-complete="off" placeholder="账号"></el-input>
     </el-form-item>
-    <el-form-item prop="checkPass" label="密码"  label-width="80px">
+    <el-form-item prop="checkPass">
       <el-input type="password" v-model="ruleForm2.checkPass" auto-complete="off" placeholder="密码"></el-input>
     </el-form-item>
     <el-checkbox v-model="checked" checked class="remember">记住密码</el-checkbox>
-    <el-form-item style="width:100%;" >
+    <el-form-item style="width:100%;">
       <el-button type="primary" style="width:100%;" @click.native.prevent="handleSubmit2" :loading="logining">登录</el-button>
+      <!--<el-button @click.native.prevent="handleReset2">重置</el-button>-->
     </el-form-item>
-    <!--<el-form-item style="width:100%;">
-      <el-button @click.native.prevent="handleReset2" style="width:40%;">重置</el-button>
-      <el-button @click.native.prevent="frogetPsd" style="width:40%;">忘记密码</el-button>
-     </el-form-item>-->
   </el-form>
 </template>
 
 <script>
-  import { userLogin } from '../api/api';
+  import { requestLogin } from '../api/api';
   //import NProgress from 'nprogress'
   export default {
     data() {
@@ -53,37 +50,21 @@
             //_this.$router.replace('/table');
             this.logining = true;
             //NProgress.start();
-            // var loginParams = { name: this.ruleForm2.account, password: this.ruleForm2.checkPass };
-            let user = {
-              name: this.ruleForm2.account,
-              password: this.ruleForm2.checkPass
-            } ;
-
-            this.$http.post('http://localhost:3000/crm/user/login',user).then(data=>{
-            // userLogin(user).then(data => {
-              let user = data.data;
-              if(user){
+            var loginParams = { username: this.ruleForm2.account, password: this.ruleForm2.checkPass };
+            requestLogin(loginParams).then(data => {
+              this.logining = false;
+              //NProgress.done();
+              let { msg, code, user } = data;
+              if (code !== 200) {
+                this.$message({
+                  message: msg,
+                  type: 'error'
+                });
+              } else {
                 sessionStorage.setItem('user', JSON.stringify(user));
-                this.$router.push({
-                  path: '/orderList'
-                })
+                this.$router.push({ path: '/table' });
               }
             });
-
-            // requestLogin(loginParams).then(data => {
-            //   this.logining = false;
-            //   //NProgress.done();
-            //   let { msg, code, user } = data;
-            //   if (code !== 200) {
-            //     this.$message({
-            //       message: msg,
-            //       type: 'error'
-            //     });
-            //   } else {
-            //     sessionStorage.setItem('user', JSON.stringify(user));
-            //     this.$router.push({ path: '/table' });
-            //   }
-            // });
           } else {
             console.log('error submit!!');
             return false;
@@ -112,7 +93,6 @@
       margin: 0px auto 40px auto;
       text-align: center;
       color: #505458;
-      font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
     }
     .remember {
       margin: 0px 0px 35px 0px;
