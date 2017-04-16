@@ -16,12 +16,10 @@
 		</el-col>
 
 		<!--列表-->
-		<el-table :data="orders" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
-			<el-table-column type="selection" width="55">
+		<el-table :data="order" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
+			<el-table-column type="selection" width="40">
 			</el-table-column>
-			<el-table-column type="index" width="60">
-			</el-table-column>
-			<el-table-column prop="Name" label="订单名称" width="120" sortable>
+			<el-table-column type="index" width="30">
 			</el-table-column>
 			<el-table-column prop="Code" label="订单编码" width="120" sortable>
 			</el-table-column>
@@ -31,13 +29,13 @@
 			</el-table-column>
 			<el-table-column prop="ProductName" label="产品名称" width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="Qty" label="订单数量" width="120" sortable>
+			<el-table-column prop="Qty" label="数量" width="100" sortable>
 			</el-table-column>
-			<el-table-column prop="Price" label="单价" min-width="120" sortable>
+			<el-table-column prop="Price" label="单价" min-width="100" sortable>
 			</el-table-column>
-			<el-table-column prop="Amount" label="订单金额" min-width="120" sortable>
+			<el-table-column prop="Amount" label="金额" min-width="100" sortable>
 			</el-table-column>
-			<el-table-column prop="OrderTime" label="下单时间" min-width="120" sortable>
+			<el-table-column prop="OrderTime" label="下单时间" min-width="120" :formatter="formatDate" sortable>
 			</el-table-column>
 			<el-table-column prop="StoreCode" label="门店编码" min-width="120" sortable>
 			</el-table-column>
@@ -60,12 +58,9 @@
 
 		<!--编辑界面-->
 		<el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false">
-			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
+			<el-form :inline="true" :model="editForm" label-width="120px" :rules="editFormRules" ref="editForm">
 				<el-form-item label="订单编码" prop="Code">
-					<el-input v-model="editForm.Code" auto-complete="off"></el-input>
-				</el-form-item>
-				<el-form-item label="订单名称" prop="Name">
-					<el-input v-model="editForm.Name" auto-complete="off"></el-input>
+					<el-input v-model="editForm.Code" disabled auto-complete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="客户名称" prop="CustomerName">
 					<el-input v-model="editForm.CustomerName" auto-complete="off"></el-input>
@@ -75,6 +70,12 @@
 				</el-form-item>
 				<el-form-item label="产品名称" prop="ProductName">
 					<el-input v-model="editForm.ProductName" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="门店编码" prop="StoreCode">
+					<el-input v-model="editForm.StoreCode" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="门店名称" prop="StoreName">
+					<el-input v-model="editForm.StoreName" auto-complete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="订单数量">
 					<el-input-number v-model="editForm.Qty"></el-input-number>
@@ -88,12 +89,6 @@
 				<el-form-item label="下单时间">
 					<el-date-picker type="date" placeholder="选择日期" v-model="editForm.OrderTime"></el-date-picker>
 				</el-form-item>
-				<el-form-item label="门店编码" prop="StoreCode">
-					<el-input v-model="editForm.StoreCode" auto-complete="off"></el-input>
-				</el-form-item>
-				<el-form-item label="门店名称" prop="StoreName">
-					<el-input v-model="editForm.StoreName" auto-complete="off"></el-input>
-				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="editFormVisible = false">取消</el-button>
@@ -103,12 +98,9 @@
 
 		<!--新增界面-->
 		<el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
-			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-				<el-form-item label="订单编码" prop="Code">
+			<el-form :inline="true"  :model="addForm" label-width="120px" :rules="addFormRules" ref="addForm">
+				<el-form-item  label="订单编码" prop="Code">
 					<el-input v-model="addForm.Code" auto-complete="off"></el-input>
-				</el-form-item>
-				<el-form-item label="订单名称" prop="Name">
-					<el-input v-model="addForm.Name" auto-complete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="客户名称" prop="CustomerName">
 					<el-input v-model="addForm.CustomerName" auto-complete="off"></el-input>
@@ -118,6 +110,12 @@
 				</el-form-item>
 				<el-form-item label="产品名称" prop="ProductName">
 					<el-input v-model="addForm.ProductName" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="门店编码" prop="StoreCode">
+					<el-input v-model="addForm.StoreCode" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="门店名称" prop="StoreName">
+					<el-input v-model="addForm.StoreName" auto-complete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="订单数量">
 					<el-input-number v-model="addForm.Qty"></el-input-number>
@@ -131,12 +129,6 @@
 				<el-form-item label="下单时间">
 					<el-date-picker type="date" placeholder="选择日期" v-model="addForm.OrderTime"></el-date-picker>
 				</el-form-item>
-				<el-form-item label="门店编码" prop="StoreCode">
-					<el-input v-model="addForm.StoreCode" auto-complete="off"></el-input>
-				</el-form-item>
-				<el-form-item label="门店名称" prop="StoreName">
-					<el-input v-model="addForm.StoreName" auto-complete="off"></el-input>
-				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="addFormVisible = false">取消</el-button>
@@ -149,7 +141,17 @@
 <script>
 	import util from '../../common/js/util'
 	//import NProgress from 'nprogress'
-	import { getUserListPage, removeUser, batchRemoveUser, editUser, addUser } from '../../api/api';
+	import { 
+		requestOrders, 
+		getOrdersByProductName, 
+		getOrdersById, 
+		getOrdersByCustomerName, 
+		getOrdersByStoreName,
+		createOrder,
+		updateOrder,
+		deleteOrderById,
+		batchDeleteOrder
+	 } from '../../api/api';
 
 	export default {
 		data() {
@@ -157,7 +159,7 @@
 				filters: {
 					name: ''
 				},
-				users: [],
+				orders: [],
 				total: 0,
 				page: 1,
 				listLoading: false,
@@ -166,60 +168,97 @@
 				editFormVisible: false,//编辑界面是否显示
 				editLoading: false,
 				editFormRules: {
-					name: [
-						{ required: true, message: '请输入姓名', trigger: 'blur' }
+					Code: [
+						{ required: true, message: '订单编码', trigger: 'blur' }
+					],
+					CustomerName:[
+						{ required: true, message: '客户名称', trigger: 'blur' }
+					],
+					ProductCode: [
+						{ required: true, message: '产品编码', trigger: 'blur' }
+					],
+					ProductName: [
+						{ required: true, message: '产品名称', trigger: 'blur' }
+					],
+					StoreCode: [
+						{ required: true, message: '门店编码', trigger: 'blur' }
+					],
+					StoreName: [
+						{ required: true, message: '门店名称', trigger: 'blur' }
 					]
 				},
 				//编辑界面数据
 				editForm: {
 					id: 0,
-					name: '',
-					sex: -1,
-					age: 0,
-					birth: '',
-					addr: ''
+					Code: '',
+					CustomerName: '',
+					ProductCode:'',
+					ProductName:'',
+					Qty: 0,
+					Price: 0,
+					Amount: 0,
+					OrderTime: '',
+					StoreCode: '',
+					StoreName: ''
 				},
 
 				addFormVisible: false,//新增界面是否显示
 				addLoading: false,
 				addFormRules: {
-					name: [
-						{ required: true, message: '请输入姓名', trigger: 'blur' }
+					Code: [
+						{ required: true, message: '订单编码', trigger: 'blur' }
+					],
+					CustomerName:[
+						{ required: true, message: '客户名称', trigger: 'blur' }
+					],
+					ProductCode: [
+						{ required: true, message: '产品编码', trigger: 'blur' }
+					],
+					ProductName: [
+						{ required: true, message: '产品名称', trigger: 'blur' }
+					],
+					StoreCode: [
+						{ required: true, message: '门店编码', trigger: 'blur' }
+					],
+					StoreName: [
+						{ required: true, message: '门店名称', trigger: 'blur' }
 					]
 				},
 				//新增界面数据
 				addForm: {
-					name: '',
-					sex: -1,
-					age: 0,
-					birth: '',
-					addr: ''
+					Code: '',
+					CustomerName: '',
+					ProductCode:'',
+					ProductName:'',
+					Qty: 0,
+					Price: 0,
+					Amount: 0,
+					OrderTime: '',
+					StoreCode: '',
+					StoreName: ''
 				}
 
 			}
 		},
 		methods: {
-			//性别显示转换
-			formatSex: function (row, column) {
-				return row.sex == 1 ? '男' : row.sex == 0 ? '女' : '未知';
+			formatDate: function (row, column){
+				return row.OrderTime = util.formatDate.format(new Date(row.OrderTime), 'yyyy-MM-dd')
 			},
 			handleCurrentChange(val) {
 				this.page = val;
-				this.getUsers();
+				this.getOrders();
 			},
 			//获取用户列表
-			getUsers() {
+			getOrders() {
 				let para = {
 					page: this.page,
 					name: this.filters.name
 				};
 				this.listLoading = true;
-				//NProgress.start();
-				getUserListPage(para).then((res) => {
-					this.total = res.data.total;
-					this.users = res.data.users;
+				requestOrders(para).then((res) => {
+					// this.total = res.data.total;
+					this.order = res;
 					this.listLoading = false;
-					//NProgress.done();
 				});
 			},
 			//删除
@@ -229,15 +268,15 @@
 				}).then(() => {
 					this.listLoading = true;
 					//NProgress.start();
-					let para = { id: row.id };
-					removeUser(para).then((res) => {
+					let para = { _id: row._id };
+					deleteOrderById(para).then((res) => {
 						this.listLoading = false;
 						//NProgress.done();
 						this.$message({
 							message: '删除成功',
 							type: 'success'
 						});
-						this.getUsers();
+						this.getOrders();
 					});
 				}).catch(() => {
 
@@ -252,11 +291,16 @@
 			handleAdd: function () {
 				this.addFormVisible = true;
 				this.addForm = {
-					name: '',
-					sex: -1,
-					age: 0,
-					birth: '',
-					addr: ''
+					Code: '',
+					CustomerName: '',
+					ProductCode:'',
+					ProductName:'',
+					Qty: 0,
+					Price: 0,
+					Amount: 0,
+					OrderTime: '',
+					StoreCode: '',
+					StoreName: ''
 				};
 			},
 			//编辑
@@ -265,19 +309,17 @@
 					if (valid) {
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.editLoading = true;
-							//NProgress.start();
 							let para = Object.assign({}, this.editForm);
-							para.birth = (!para.birth || para.birth == '') ? '' : util.formatDate.format(new Date(para.birth), 'yyyy-MM-dd');
-							editUser(para).then((res) => {
+							para.OrderTime = (!para.OrderTime || para.OrderTime == '') ? '' : util.formatDate.format(new Date(para.OrderTime), 'yyyy-MM-dd');
+							updateOrder(para).then((res) => {
 								this.editLoading = false;
-								//NProgress.done();
 								this.$message({
 									message: '提交成功',
 									type: 'success'
 								});
 								this.$refs['editForm'].resetFields();
 								this.editFormVisible = false;
-								this.getUsers();
+								this.getOrders();
 							});
 						});
 					}
@@ -291,8 +333,11 @@
 							this.addLoading = true;
 							//NProgress.start();
 							let para = Object.assign({}, this.addForm);
-							para.birth = (!para.birth || para.birth == '') ? '' : util.formatDate.format(new Date(para.birth), 'yyyy-MM-dd');
-							addUser(para).then((res) => {
+							para.OrderTime = (!para.OrderTime || para.OrderTime == '') ? '' : util.formatDate.format(new Date(para.OrderTime), 'yyyy-MM-dd');
+							var user = JSON.parse(sessionStorage.getItem('user'));
+							para.User = user._id;
+							para.CreatedBy = user.Name;
+							createOrder(para).then((res) => {
 								this.addLoading = false;
 								//NProgress.done();
 								this.$message({
@@ -301,7 +346,7 @@
 								});
 								this.$refs['addForm'].resetFields();
 								this.addFormVisible = false;
-								this.getUsers();
+								this.getOrders();
 							});
 						});
 					}
@@ -312,21 +357,21 @@
 			},
 			//批量删除
 			batchRemove: function () {
-				var ids = this.sels.map(item => item.id).toString();
+				var ids = this.sels.map(item => item._id).toString();
 				this.$confirm('确认删除选中记录吗？', '提示', {
 					type: 'warning'
 				}).then(() => {
 					this.listLoading = true;
 					//NProgress.start();
 					let para = { ids: ids };
-					batchRemoveUser(para).then((res) => {
+					batchDeleteOrder(para).then((res) => {
 						this.listLoading = false;
 						//NProgress.done();
 						this.$message({
 							message: '删除成功',
 							type: 'success'
 						});
-						this.getUsers();
+						this.getOrders();
 					});
 				}).catch(() => {
 
@@ -334,7 +379,7 @@
 			}
 		},
 		mounted() {
-			this.getUsers();
+			this.getOrders();
 		}
 	}
 

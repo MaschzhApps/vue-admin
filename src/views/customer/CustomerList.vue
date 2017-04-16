@@ -17,9 +17,9 @@
 
 		<!--列表-->
 		<el-table :data="customer" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
-			<el-table-column type="selection" width="55">
+			<el-table-column type="selection" width="40">
 			</el-table-column>
-			<el-table-column type="index" width="60">
+			<el-table-column type="index" width="30">
 			</el-table-column>
 			<el-table-column prop="Code" label="客户编码" width="120" sortable>
 			</el-table-column>
@@ -52,7 +52,7 @@
 		<el-dialog title="编辑" v-model="editCustFormVisible" :close-on-click-modal="false">
 			<el-form :model="editCustForm" label-width="120px" :rules="editCustFormRules" ref="editCustForm">
 				<el-form-item label="客户编码" prop="Code">
-					<el-input v-model="editCustForm.Code" auto-complete="off"></el-input>
+					<el-input v-model="editCustForm.Code" disabled auto-complete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="客户名称" prop="Name">
 					<el-input v-model="editCustForm.Name" auto-complete="off"></el-input>

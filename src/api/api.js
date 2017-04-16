@@ -70,7 +70,7 @@ export const batchDeleteCustomer = params => {
 };
 
 //订单相关
-export const getOrders = params => {
+export const requestOrders = params => {
     return Vue.http.get(`${baseUrl}/order/orders`).then(res => {
         return res.data;
     });
