@@ -19,7 +19,7 @@
 </template>
 
 <script>
-  import { userLogin } from '../api/api';
+  import { requestLogin,baseUrl } from '../api/api';
   //import NProgress from 'nprogress'
   export default {
     data() {
@@ -59,14 +59,22 @@
               password: this.ruleForm2.checkPass
             } ;
 
-            this.$http.post('http://localhost:3000/crm/user/login',user).then(data=>{
+            this.$http.post(baseUrl+'/user/login',user).then(data=>{
             // userLogin(user).then(data => {
-              let user = data.data;
-              if(user){
-                sessionStorage.setItem('user', JSON.stringify(user));
-                this.$router.push({
-                  path: '/orderList'
-                })
+              if(data.data.ErrMessage){
+                this.logining = false;
+                this.$message({
+                  message: data.data.ErrMessage,
+                  type: 'error'
+                });
+              }else {
+                let user = data.data;
+                if(user){
+                  sessionStorage.setItem('user', JSON.stringify(user));
+                  this.$router.push({
+                    path: '/orderList'
+                  })
+                }
               }
             });
 

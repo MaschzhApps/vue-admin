@@ -14,7 +14,7 @@
 					<span class="el-dropdown-link userinfo-inner"><img :src="this.sysUserAvatar" /> {{sysUserName}}</span>
 					<el-dropdown-menu slot="dropdown">
 						<el-dropdown-item>我的消息</el-dropdown-item>
-						<el-dropdown-item>设置</el-dropdown-item>
+						<el-dropdown-item @click.native="setting">设置</el-dropdown-item>
 						<el-dropdown-item divided @click.native="logout">退出登录</el-dropdown-item>
 					</el-dropdown-menu>
 				</el-dropdown>
@@ -66,16 +66,36 @@
 						</transition>
 					</el-col>
 				</div>
+
+				<!--修改密码-->
+				<el-dialog title="修改密码" v-model="editPsdVisible" :close-on-click-modal="false">
+					<el-form :model="editPsdForm" label-width="120px" :rules="editPsdFormRules" ref="editPsdForm">
+						<el-form-item label="原始密码" prop="Password">
+							<el-input type="password" v-model="editPsdForm.Password" auto-complete="off" ></el-input>
+						</el-form-item>
+						<el-form-item label="新密码" prop="NewPassword">
+							<el-input type="password" v-model="editPsdForm.NewPassword" auto-complete="off"></el-input>
+						</el-form-item>
+						<el-form-item label="确认密码">
+							<el-input type="password" v-model="editPsdForm.ConfirmPsd" auto-complete="off"></el-input>
+						</el-form-item>
+					</el-form>
+					<div slot="footer" class="dialog-footer">
+						<el-button @click.native="editPsdVisible = false">取消</el-button>
+						<el-button type="primary" @click.native="editPsdSubmit" :loading="editPsdLoading">提交</el-button>
+					</div>
+				</el-dialog>
 			</section>
 		</el-col>
 	</el-row>
 </template>
 
 <script>
+	import {baseUrl} from '../api/api'
 	export default {
 		data() {
 			return {
-				sysName:'CRM MANAGER',
+				sysName:'客户管理系统',
 				collapsed:false,
 				sysUserName: '',
 				sysUserAvatar: '',
@@ -88,6 +108,21 @@
 					type: [],
 					resource: '',
 					desc: ''
+				},
+
+				editPsdVisible: false,//修改密码界面是否显示
+				editPsdLoading: false,
+				editPsdFormRules: {
+					Password: [
+						{ required: true, message: '请输入密码', trigger: 'blur' }
+					]
+				},
+				//修改密码界面数据
+				editPsdForm: {
+					_id: '',
+					Password: '',
+					NewPassword: '',
+					ConfirmPsd: ''
 				}
 			}
 		},
@@ -102,6 +137,49 @@
 				//console.log('handleclose');
 			},
 			handleselect: function (a, b) {
+			},
+			//设置
+			setting: function(){	
+				var user = JSON.parse(sessionStorage.getItem('user'));
+				this.editPsdVisible = true;
+				this.editPsdForm._id = user._id;
+			},
+			editPsdSubmit:function(){
+				this.$refs.editPsdForm.validate((valid) => {
+					if(valid){
+						if(this.editPsdForm.NewPassword!== this.editPsdForm.ConfirmPsd){
+							this.$message({
+								message: '两次输入的密码不一致，请重新输入！',
+								type: 'error'
+							})
+						}
+						else{
+							this.$confirm('确认提交吗？', '提示', {}).then(() =>{
+								this.editLoading = true;
+								let para = Object.assign({}, this.editPsdForm);
+
+								this.$http.put(baseUrl + '/user/password/' + para._id, para).then( (res) =>{
+									this.editLoading = false;
+									if(res.data.SucMessage){
+										this.$message({
+											message: res.data.SucMessage,
+											type: 'success'
+										})
+
+										this.$refs['editPsdForm'].resetFields()
+										this.editPsdVisible = false
+										this.getUsers()
+									}else{
+										this.$message({
+											message: res.data.ErrMessage,
+											type: 'error'
+										})
+									}
+								})
+							})
+						}
+					}
+				})
 			},
 			//退出登录
 			logout: function () {
@@ -131,6 +209,7 @@
 				user = JSON.parse(user);
 				this.sysUserName = user.name || '';
 				this.sysUserAvatar = user.avatar || '';
+				this.sysUserId = user._id || '';
 			}
 
 		}

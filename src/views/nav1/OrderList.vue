@@ -4,10 +4,10 @@
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true" :model="filters">
 				<el-form-item>
-					<el-input v-model="filters.name" placeholder="姓名"></el-input>
+					<el-input v-model="filters.Code" placeholder="订单号"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" v-on:click="getUsers">查询</el-button>
+					<el-button type="primary" v-on:click="getOrders">查询</el-button>
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" @click="handleAdd">新增</el-button>
@@ -16,20 +16,32 @@
 		</el-col>
 
 		<!--列表-->
-		<el-table :data="users" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
+		<el-table :data="orders" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
 			<el-table-column type="selection" width="55">
 			</el-table-column>
 			<el-table-column type="index" width="60">
 			</el-table-column>
-			<el-table-column prop="name" label="姓名" width="120" sortable>
+			<el-table-column prop="Name" label="订单名称" width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="sex" label="性别" width="100" :formatter="formatSex" sortable>
+			<el-table-column prop="Code" label="订单编码" width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="age" label="年龄" width="100" sortable>
+			<el-table-column prop="CustomerName" label="客户名称" width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="birth" label="生日" width="120" sortable>
+			<el-table-column prop="ProductCode" label="产品编码" width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="addr" label="地址" min-width="180" sortable>
+			<el-table-column prop="ProductName" label="产品名称" width="120" sortable>
+			</el-table-column>
+			<el-table-column prop="Qty" label="订单数量" width="120" sortable>
+			</el-table-column>
+			<el-table-column prop="Price" label="单价" min-width="120" sortable>
+			</el-table-column>
+			<el-table-column prop="Amount" label="订单金额" min-width="120" sortable>
+			</el-table-column>
+			<el-table-column prop="OrderTime" label="下单时间" min-width="120" sortable>
+			</el-table-column>
+			<el-table-column prop="StoreCode" label="门店编码" min-width="120" sortable>
+			</el-table-column>
+			<el-table-column prop="StoreName" label="门店名称" min-width="120" sortable>
 			</el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
@@ -49,23 +61,38 @@
 		<!--编辑界面-->
 		<el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
-				<el-form-item label="姓名" prop="name">
-					<el-input v-model="editForm.name" auto-complete="off"></el-input>
+				<el-form-item label="订单编码" prop="Code">
+					<el-input v-model="editForm.Code" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="性别">
-					<el-radio-group v-model="editForm.sex">
-						<el-radio class="radio" :label="1">男</el-radio>
-						<el-radio class="radio" :label="0">女</el-radio>
-					</el-radio-group>
+				<el-form-item label="订单名称" prop="Name">
+					<el-input v-model="editForm.Name" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="年龄">
-					<el-input-number v-model="editForm.age" :min="0" :max="200"></el-input-number>
+				<el-form-item label="客户名称" prop="CustomerName">
+					<el-input v-model="editForm.CustomerName" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="生日">
-					<el-date-picker type="date" placeholder="选择日期" v-model="editForm.birth"></el-date-picker>
+				<el-form-item label="产品编码" prop="ProductCode">
+					<el-input v-model="editForm.ProductCode" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="地址">
-					<el-input type="textarea" v-model="editForm.addr"></el-input>
+				<el-form-item label="产品名称" prop="ProductName">
+					<el-input v-model="editForm.ProductName" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="订单数量">
+					<el-input-number v-model="editForm.Qty"></el-input-number>
+				</el-form-item>
+				<el-form-item label="单价">
+					<el-input-number v-model="editForm.Price"></el-input-number>
+				</el-form-item>
+				<el-form-item label="订单金额">
+					<el-input-number v-model="editForm.Amount"></el-input-number>
+				</el-form-item>
+				<el-form-item label="下单时间">
+					<el-date-picker type="date" placeholder="选择日期" v-model="editForm.OrderTime"></el-date-picker>
+				</el-form-item>
+				<el-form-item label="门店编码" prop="StoreCode">
+					<el-input v-model="editForm.StoreCode" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="门店名称" prop="StoreName">
+					<el-input v-model="editForm.StoreName" auto-complete="off"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -77,23 +104,38 @@
 		<!--新增界面-->
 		<el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-				<el-form-item label="姓名" prop="name">
-					<el-input v-model="addForm.name" auto-complete="off"></el-input>
+				<el-form-item label="订单编码" prop="Code">
+					<el-input v-model="addForm.Code" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="性别">
-					<el-radio-group v-model="addForm.sex">
-						<el-radio class="radio" :label="1">男</el-radio>
-						<el-radio class="radio" :label="0">女</el-radio>
-					</el-radio-group>
+				<el-form-item label="订单名称" prop="Name">
+					<el-input v-model="addForm.Name" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="年龄">
-					<el-input-number v-model="addForm.age" :min="0" :max="200"></el-input-number>
+				<el-form-item label="客户名称" prop="CustomerName">
+					<el-input v-model="addForm.CustomerName" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="生日">
-					<el-date-picker type="date" placeholder="选择日期" v-model="addForm.birth"></el-date-picker>
+				<el-form-item label="产品编码" prop="ProductCode">
+					<el-input v-model="addForm.ProductCode" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="地址">
-					<el-input type="textarea" v-model="addForm.addr"></el-input>
+				<el-form-item label="产品名称" prop="ProductName">
+					<el-input v-model="addForm.ProductName" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="订单数量">
+					<el-input-number v-model="addForm.Qty"></el-input-number>
+				</el-form-item>
+				<el-form-item label="单价">
+					<el-input-number v-model="addForm.Price"></el-input-number>
+				</el-form-item>
+				<el-form-item label="订单金额">
+					<el-input-number v-model="addForm.Amount"></el-input-number>
+				</el-form-item>
+				<el-form-item label="下单时间">
+					<el-date-picker type="date" placeholder="选择日期" v-model="addForm.OrderTime"></el-date-picker>
+				</el-form-item>
+				<el-form-item label="门店编码" prop="StoreCode">
+					<el-input v-model="addForm.StoreCode" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="门店名称" prop="StoreName">
+					<el-input v-model="addForm.StoreName" auto-complete="off"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
